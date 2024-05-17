@@ -1,5 +1,4 @@
 import 'package:date_picker_plus/date_picker_plus.dart';
-import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -28,12 +27,7 @@ class _AddUpdateStudentState extends State<AddUpdateStudent> {
   final TextEditingController srNumberCont = TextEditingController();
   String genderCont = "";
   int _toggleIndex = -1;
-  SingleValueDropDownController classCont = SingleValueDropDownController(
-    data: const DropDownValueModel(
-      name: "Select Class",
-      value: "Select Class",
-    ),
-  );
+  String classCont = "Select Class";
   bool isBtnEnable = false;
   final DateFormat format = DateFormat("yyyy-MM-dd");
 
@@ -47,12 +41,7 @@ class _AddUpdateStudentState extends State<AddUpdateStudent> {
       srNumberCont.text = widget.student!.srNumber;
       genderCont = widget.student!.gender.toString();
       _toggleIndex = Gender.values.indexOf(genderCont);
-      classCont = SingleValueDropDownController(
-        data: DropDownValueModel(
-          name: widget.student!.className.toString(),
-          value: widget.student!.className.toString(),
-        ),
-      );
+      classCont = widget.student!.className.toString();
     }
     super.initState();
   }
@@ -65,7 +54,7 @@ class _AddUpdateStudentState extends State<AddUpdateStudent> {
           penNumberCont.text.toString().isNotEmpty &&
           srNumberCont.text.toString().isNotEmpty &&
           genderCont.isNotEmpty &&
-          !classCont.dropDownValue!.name.contains("Select Class")) {
+          !classCont.contains("Select Class")) {
         isBtnEnable = true;
       } else {
         isBtnEnable = false;
@@ -80,7 +69,6 @@ class _AddUpdateStudentState extends State<AddUpdateStudent> {
     dobCont.dispose();
     penNumberCont.dispose();
     srNumberCont.dispose();
-    classCont.dispose();
     super.dispose();
   }
 
@@ -305,30 +293,20 @@ class _AddUpdateStudentState extends State<AddUpdateStudent> {
             const SizedBox(
               height: 10,
             ),
-            DropDownTextField(
-              enableSearch: false,
-              clearOption: false,
-              controller: classCont,
-              textFieldDecoration: const InputDecoration(
-                label: Text("Class"),
-              ),
+            DropdownButton(
+              value: classCont,
               onChanged: (value) {
+                setState(() {
+                  classCont = value!;
+                });
                 checkFields();
               },
-              dropDownList: const [
-                DropDownValueModel(name: Class.first, value: Class.first),
-                DropDownValueModel(name: Class.second, value: Class.second),
-                DropDownValueModel(name: Class.third, value: Class.third),
-                DropDownValueModel(name: Class.fourth, value: Class.fourth),
-                DropDownValueModel(name: Class.fifth, value: Class.fifth),
-                DropDownValueModel(name: Class.sixth, value: Class.sixth),
-                DropDownValueModel(name: Class.eighth, value: Class.seventh),
-                DropDownValueModel(name: Class.eighth, value: Class.eighth),
-                DropDownValueModel(name: Class.ninth, value: Class.ninth),
-                DropDownValueModel(name: Class.tenth, value: Class.tenth),
-                DropDownValueModel(name: Class.eleventh, value: Class.eleventh),
-                DropDownValueModel(name: Class.twelfth, value: Class.twelfth),
-              ],
+              items: ClassFields.values.map((item) {
+                return DropdownMenuItem(
+                  value: item,
+                  child: Text(item),
+                );
+              }).toList(),
             ),
             const SizedBox(
               height: 30,
@@ -345,7 +323,7 @@ class _AddUpdateStudentState extends State<AddUpdateStudent> {
                                 dob: dobCont.text.trim(),
                                 penNumber: penNumberCont.text.trim(),
                                 srNumber: srNumberCont.text.trim(),
-                                className: classCont.dropDownValue!.value,
+                                className: classCont,
                                 gender: genderCont,
                               ),
                             )
@@ -370,7 +348,7 @@ class _AddUpdateStudentState extends State<AddUpdateStudent> {
                                 dob: dobCont.text.trim(),
                                 penNumber: penNumberCont.text.trim(),
                                 srNumber: srNumberCont.text.trim(),
-                                className: classCont.dropDownValue!.value,
+                                className: classCont,
                                 gender: genderCont,
                               ),
                             )

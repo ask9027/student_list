@@ -1,4 +1,3 @@
-import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
 
 import '../database/databases.dart';
@@ -18,9 +17,7 @@ class Setup extends StatefulWidget {
 }
 
 class _SetupState extends State<Setup> {
-  SingleValueDropDownController classCont = SingleValueDropDownController(
-    data: const DropDownValueModel(name: "Select Class", value: "Select Class"),
-  );
+  String classCont = "";
   TextEditingController classTeachCont = TextEditingController();
 
   bool isBtnEnable = false;
@@ -28,10 +25,7 @@ class _SetupState extends State<Setup> {
   @override
   void initState() {
     if (!widget.isAdd!) {
-      classCont = SingleValueDropDownController(
-          data: DropDownValueModel(
-              name: widget.classModel!.className.toString(),
-              value: widget.classModel!.className.toString()));
+      classCont = widget.classModel!.className.toString();
 
       classTeachCont.text = widget.classModel!.classTeacher.toString();
     }
@@ -40,7 +34,7 @@ class _SetupState extends State<Setup> {
 
   checkFields() {
     setState(() {
-      if (!classCont.dropDownValue!.name.contains("Select Class") &&
+      if (!classCont.contains("Select Class") &&
           classTeachCont.text.toString().isNotEmpty) {
         isBtnEnable = true;
       } else {
@@ -51,7 +45,6 @@ class _SetupState extends State<Setup> {
 
   @override
   void dispose() {
-    classCont.dispose();
     classTeachCont.dispose();
     super.dispose();
   }
@@ -70,28 +63,18 @@ class _SetupState extends State<Setup> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            DropDownTextField(
-              enableSearch: false,
-              clearOption: false,
-              controller: classCont,
-              dropDownList: const [
-                DropDownValueModel(name: "1st", value: '1st'),
-                DropDownValueModel(name: "2nd", value: '2nd'),
-                DropDownValueModel(name: "3rd", value: '3rd'),
-                DropDownValueModel(name: "4th", value: '4th'),
-                DropDownValueModel(name: "5th", value: '5th'),
-                DropDownValueModel(name: "6th", value: '6th'),
-                DropDownValueModel(name: "7th", value: '7th'),
-                DropDownValueModel(name: "8th", value: '8th'),
-                DropDownValueModel(name: "9th", value: '9th'),
-                DropDownValueModel(name: "10th", value: '10th'),
-                DropDownValueModel(name: "11th", value: '11th'),
-                DropDownValueModel(name: "12th", value: '12th'),
-              ],
-              textFieldDecoration: const InputDecoration(
-                label: Text("Class"),
-              ),
+            DropdownButton(
+              value: classCont,
+              items: ClassFields.values.map((items) {
+                return DropdownMenuItem(
+                  value: items,
+                  child: Text(items),
+                );
+              }).toList(),
               onChanged: (value) {
+                setState(() {
+                  classCont = value!;
+                });
                 checkFields();
               },
             ),
@@ -119,7 +102,7 @@ class _SetupState extends State<Setup> {
                         ClassModel classModel = await StudentDBHelper.instance
                             .addClassDetails(
                               ClassModel(
-                                className: classCont.dropDownValue!.name,
+                                className: classCont,
                                 classTeacher:
                                     classTeachCont.text.toTitleCase().trim(),
                                 isSetup: "1",
@@ -145,8 +128,7 @@ class _SetupState extends State<Setup> {
                             .updateClass(
                               ClassModel(
                                 id: widget.classModel!.id,
-                                className:
-                                    classCont.dropDownValue!.name.toString(),
+                                className: classCont,
                                 classTeacher:
                                     classTeachCont.text.toTitleCase().trim(),
                                 isSetup: widget.classModel!.isSetup.trim(),
@@ -160,8 +142,7 @@ class _SetupState extends State<Setup> {
                             );
                         if (!context.mounted) return;
 
-                        showSnack(context,
-                            "${classCont.dropDownValue!.name} Updated.");
+                        showSnack(context, "$classCont Updated.");
 
                         Navigator.pop(context);
                       }
